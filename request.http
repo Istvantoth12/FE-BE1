@@ -1,0 +1,10 @@
+### POST kérés egy új feladat létrehozására
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+    "task": "Növeld a Node.js tudásomat!"
+}
+
+### GET kérés az összes feladat lekérdezésére
+GET http://localhost:3000/tasks
