@@ -1,19 +1,33 @@
-### POST kérés egy új feladat létrehozására
-POST http://localhost:3000/tasks
-Content-Type: application/json
-
-{
-    "task": "negyedik"
-}
-
-### POST kérés egy új feladat létrehozására
+### 1. LÉPÉS: Hozz létre egy felhasználót
+# A válaszban kapott "id"-t használd a következő kérésben!
 POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-    "email": "user1@server.hu",
-    "name": "user1"
+    "email": "teszt.elek@example.com",
+    "name": "Teszt Elek"
 }
+
+### --------------------------------------------------
+
+### 2. LÉPÉS: Hozz létre egy feladatot a felhasználóhoz
+# Cseréld le a "userId" értékét az előző lépésben kapott ID-ra!
+POST http://localhost:3000/tasks
+Content-Type: application/json
+
+{
+    "title": "Vegyél tejet",
+    "description": "Fél liter, 2.8%-os",
+    "userId": 1
+}
+
+### --------------------------------------------------
 
 ### GET kérés az összes feladat lekérdezésére
 GET http://localhost:3000/tasks
+
+
+### --------------------------------------------------
+
+### GET kérés az összes felhasználó lekérdezésére
+GET http://localhost:3000/users

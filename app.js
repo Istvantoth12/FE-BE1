@@ -23,6 +23,18 @@ const sequelize = new Sequelize({
 const TaskModel = require('./models/Task')(sequelize, DataTypes); 
 const UserModel = require('./models/User')(sequelize, DataTypes); 
 
+// Modellek összekapcsolása (asszociációk)
+const models = {
+  User: UserModel,
+  Task: TaskModel
+};
+
+Object.keys(models).forEach(modelName => {
+  if (models[modelName].associate) {
+    models[modelName].associate(models);
+  }
+});
+
 // 3. Adatbázis Szinkronizálása és Szerver Indítása
 async function initializeApp() {
   try {
@@ -33,8 +45,8 @@ async function initializeApp() {
     // Táblák létrehozása a modell alapján, ha még nem léteznek.
     // Fejlesztés elején hasznos, éles környezetben SOHA!
     await sequelize.sync({
-//       force: false, // Minden indításnál újrahozza a táblákat
-       alter: true // Megpróbálja szinkronban tartani a táblákat a modellekkel anélkül, hogy törölné az adatokat
+      force: true, // Minden indításnál újrahozza a táblákat
+      //  alter: true // Megpróbálja szinkronban tartani a táblákat a modellekkel anélkül, hogy törölné az adatokat
     }); 
     console.log("Minden modell szinkronizálva az adatbázissal.");
 
@@ -52,20 +64,20 @@ initializeApp();
 
 app.post('/tasks', async (req, res) => {
   try {
-    // 1. Kinyerjük a 'task' mezőt a kérés testéből
-    const { task } = req.body; 
+    // 1. Kinyerjük a szükséges mezőket a kérés testéből
+    const { title, description, userId } = req.body;
 
-    // 2. Ellenőrzés: A mező nem lehet üres
-    if (!task) {
-      return res.status(400).json({ error: 'A feladat szövege hiányzik.' });
+    // 2. Ellenőrzés: A kötelező mezők nem lehetnek üresek
+    if (!title || !userId) {
+      return res.status(400).json({ error: 'A "title" és "userId" mezők kitöltése kötelező.' });
     }
 
     // 3. Sequelize: Új rekord létrehozása a modell alapján
-    const newTask = await TaskModel.create({ task: task });
+    const newTask = await TaskModel.create({ title, description, userId });
 
     // 4. Válasz küldése a létrehozott objektummal (HTTP 201 Created)
     res.status(201).json(newTask);
-    
+
   } catch (error) {
     console.error('Hiba az új feladat létrehozásakor:', error);
     res.status(500).json({ error: 'Szerveroldali hiba.' });
@@ -76,20 +88,20 @@ app.post('/tasks', async (req, res) => {
 
 app.post('/users', async (req, res) => {
   try {
-    // 1. Kinyerjük a 'task' mezőt a kérés testéből
-    const { user } = req.body; 
+    // 1. Kinyerjük a szükséges mezőket a kérés testéből
+    const { email, name } = req.body;
 
-    // 2. Ellenőrzés: A mező nem lehet üres
-    if (!user) {
-      return res.status(400).json({ error: 'User adatok hiányoznak' });
+    // 2. Ellenőrzés: Az email mező nem lehet üres
+    if (!email) {
+      return res.status(400).json({ error: 'Az "email" mező kitöltése kötelező.' });
     }
 
     // 3. Sequelize: Új rekord létrehozása a modell alapján
-    const newUser = await TaskModel.create({ user: user });
+    const newUser = await UserModel.create({ email, name });
 
     // 4. Válasz küldése a létrehozott objektummal (HTTP 201 Created)
     res.status(201).json(newUser);
-    
+
   } catch (error) {
     console.error('Hiba az új user létrehozásakor:', error);
     res.status(500).json({ error: 'Szerveroldali hiba.' });
@@ -106,9 +118,4 @@ app.get('/tasks', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Hiba a feladatok lekérdezésekor.' });
   }
-});
-
-// 5. Elindítjuk a szervert
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
 });
