@@ -42,7 +42,7 @@ router.get('/page/:page', async (req, res) => {
   try {
     const page = parseInt(req.params.page, 10);
     if (isNaN(page) || page < 1) {
-      return res.status(400).json({ error: 'Érvénytelen oldalszám.' });
+      return res.status(400).json({ error: 'Érvénytelen oldalszám.' });   
     }
 
     const limit = 5;
